@@ -1,0 +1,12 @@
+<html>
+<head>
+</head>
+<body>
+  <% for item in list %>
+  <embed src="<%= item %>" height="300" width="480" autoplay="false" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/">
+  <br/>
+  <% end %>
+</body>
+</html>
+
+
