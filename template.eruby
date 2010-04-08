@@ -2,8 +2,9 @@
 <head>
 </head>
 <body>
-  <% for item in list %>
-  <embed src="<%= item %>" height="300" width="480" autoplay="false" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/">
+  <% for trailer in trailers %>
+  <a href="<%= trailer[:instant_play_url] %>">Instant Play</a><br/>
+  <embed src="<%= trailer[:trailer_url] %>" height="300" width="480" autoplay="false" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/">
   <br/>
   <% end %>
 </body>

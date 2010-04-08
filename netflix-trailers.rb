@@ -8,6 +8,7 @@ require 'erubis'
 
 class NetflixTrailers
   QUEUE_URL_BASE = "http://rss.netflix.com/QueueEDRSS?id="
+  INSTANT_PLAY_URL_BASE = "http://www.netflix.com/WiPlayer?movieid="
   APPLE_URL = "http://trailers.apple.com/trailers/home/xml/widgets/indexall.xml"
   
   def initialize(api)
@@ -15,11 +16,11 @@ class NetflixTrailers
   end
   
   def get_queue(url)
-    titles = []
+    titles = {}
     open(url) do |rss|
       RSS::Parser.parse(rss, false).items.each do |item|
         if item.title =~ /^\d.+-\s(.+)/
-          titles << $1
+          titles[$1] = item.link.split('/').last
         end
       end
     end
@@ -38,8 +39,8 @@ class NetflixTrailers
   def get_netflix_trailers
     titles = get_queue(@queue_url)
     movies = get_trailers(APPLE_URL)
-    netflix_trailers = titles.map {|title| movies.fetch(title)  {|t| movies[find_closest_key(movies.keys, t)]}}
-    netflix_trailers.delete_if {|i| i.nil?}
+    netflix_trailers = titles.map {|title, id| {:instant_play_url => INSTANT_PLAY_URL_BASE + id, :trailer_url => movies.fetch(title)  {|t| movies[find_closest_key(movies.keys, t)]}}}
+    netflix_trailers.delete_if {|i| i[:trailer_url].nil?}
   end  
   
   def find_closest_key(keys, title)
@@ -51,7 +52,7 @@ class NetflixTrailers
     trailers = get_netflix_trailers
     template  = File.read('template.eruby')
     eruby = Erubis::Eruby.new(template)
-    eruby.result(:list => trailers)
+    eruby.result(:trailers => trailers)
   end
 end
 
